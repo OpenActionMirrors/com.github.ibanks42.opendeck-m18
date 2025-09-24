@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.3] - 2025-09-24
+
+### 🐛 Bug Fixes
+
+- *(device)* Fixed incorrect device mappings for akp153, again...
+
 ## [0.9.2] - 2025-09-19
 
 ### 🐛 Bug Fixes
