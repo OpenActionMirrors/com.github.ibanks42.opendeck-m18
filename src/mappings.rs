@@ -108,7 +108,6 @@ impl Kind {
     pub fn from_vid_pid(vid: u16, pid: u16) -> Option<Self> {
         match vid {
             AJAZZ_VID => match pid {
-                AKP153_PID => Some(Kind::AKP153),
                 AKP153E_PID => Some(Kind::AKP153E),
                 AKP153E_REV2_PID => Some(Kind::AKP153EREV2),
                 AKP153R_PID => Some(Kind::AKP153R),
@@ -116,6 +115,7 @@ impl Kind {
             },
 
             MIRABOX_VID => match pid {
+                AKP153_PID => Some(Kind::AKP153),
                 HSV293S_PID => Some(Kind::HSV293S),
                 _ => None,
             },
