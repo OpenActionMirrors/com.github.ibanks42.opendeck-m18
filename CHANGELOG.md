@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.4] - 2025-11-23
+
+### 🚀 Features
+
+- *(device)* Add support for Soomfon Stream Controller XF-CN001 (1500:3003) (#27)
+- Move some debug logs to info
+
+### 📚 Documentation
+
+- *(readme)* Removed correction about Soomfon Stream Controller
+
 ## [0.9.3] - 2025-09-24
 
 ### 🐛 Bug Fixes
