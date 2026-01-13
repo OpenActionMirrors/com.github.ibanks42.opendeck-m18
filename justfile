@@ -1,4 +1,4 @@
-id := "st.lynx.plugins.opendeck-akp153.sdPlugin"
+id := "com.github.ibanks42.opendeck-m18.sdPlugin"
 
 release: bump package tag
 
@@ -41,10 +41,10 @@ collect:
     mkdir -p build/{{id}}
     cp -r assets build/{{id}}
     cp manifest.json build/{{id}}
-    cp target/plugin-linux/x86_64-unknown-linux-gnu/release/opendeck-akp153 build/{{id}}/opendeck-akp153-linux
-    cp target/plugin-mac/universal2-apple-darwin/release/opendeck-akp153 build/{{id}}/opendeck-akp153-mac
-    cp target/plugin-win/x86_64-pc-windows-gnu/release/opendeck-akp153.exe build/{{id}}/opendeck-akp153-win.exe
+    cp target/plugin-linux/x86_64-unknown-linux-gnu/release/opendeck-m18 build/{{id}}/opendeck-m18-linux
+    cp target/plugin-mac/universal2-apple-darwin/release/opendeck-m18 build/{{id}}/opendeck-m18-mac
+    cp target/plugin-win/x86_64-pc-windows-gnu/release/opendeck-m18.exe build/{{id}}/opendeck-m18-win.exe
 
 [working-directory: "build"]
 zip:
-    zip -r opendeck-akp153.plugin.zip {{id}}/
+    zip -r opendeck-m18.plugin.zip {{id}}/

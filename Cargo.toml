@@ -1,7 +1,9 @@
 [package]
-name = "opendeck-akp153"
-version = "0.9.4"
+name = "opendeck-m18"
+version = "0.1.0"
 edition = "2024"
+authors = ["ibanks42"]
+repository = "https://github.com/ibanks42/opendeck-m18"
 
 [dependencies]
 data-url = "0.3.1"

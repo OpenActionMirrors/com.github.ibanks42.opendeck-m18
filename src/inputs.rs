@@ -2,11 +2,17 @@ use mirajazz::{error::MirajazzError, types::DeviceInput};
 
 use crate::mappings::KEY_COUNT;
 
-pub fn process_input(input: u8, state: u8) -> Result<DeviceInput, MirajazzError> {
-    log::info!("Processing input: {}, {}", input, state);
+// Bottom button input codes (non-LCD buttons)
+const BTN_LEFT: u8 = 0x25;
+const BTN_MIDDLE: u8 = 0x30;
+const BTN_RIGHT: u8 = 0x31;
 
-    match input as usize {
-        (0..=KEY_COUNT) => read_button_press(input, state),
+pub fn process_input(input: u8, state: u8) -> Result<DeviceInput, MirajazzError> {
+    log::info!("Processing input: key={}, state={}", input, state);
+
+    match input {
+        0..=15 => read_button_press(input, state),
+        BTN_LEFT | BTN_MIDDLE | BTN_RIGHT => read_button_press(input, state),
         _ => Err(MirajazzError::BadData),
     }
 }
@@ -21,24 +27,17 @@ fn read_button_states(states: &[u8]) -> Vec<bool> {
     bools
 }
 
-/// Converts opendeck key index to device key index
-pub fn opendeck_to_device(key: u8) -> u8 {
-    if key < KEY_COUNT as u8 {
-        [12, 9, 6, 3, 0, 15, 13, 10, 7, 4, 1, 16, 14, 11, 8, 5, 2, 17][key as usize]
-    } else {
-        key
-    }
+/// Flips row order: row 0 ↔ row 2, row 1 stays.
+/// Device is vertically flipped compared to OpenDeck.
+fn flip_row(key: u8) -> u8 {
+    let row = key / 5;
+    let col = key % 5;
+    (2 - row) * 5 + col
 }
 
-/// Converts device key index to opendeck key index
-pub fn device_to_opendeck(key: usize) -> usize {
-    let key = key - 1; // We have to subtract 1 from key index reported by device, because list is shifted by 1
-
-    if key < KEY_COUNT {
-        [4, 10, 16, 3, 9, 15, 2, 8, 14, 1, 7, 13, 0, 6, 12, 5, 11, 17][key]
-    } else {
-        key
-    }
+/// Converts opendeck key index to device key index (for sending images)
+pub fn opendeck_to_device(key: u8) -> u8 {
+    flip_row(key)
 }
 
 fn read_button_press(input: u8, state: u8) -> Result<DeviceInput, MirajazzError> {
@@ -51,10 +50,24 @@ fn read_button_press(input: u8, state: u8) -> Result<DeviceInput, MirajazzError>
         )));
     }
 
-    let pressed_index: usize = device_to_opendeck(input as usize);
+    // Only trigger on press (state=1), ignore release (state=0)
+    if state == 0 {
+        return Ok(DeviceInput::ButtonStateChange(read_button_states(
+            &button_states,
+        )));
+    }
 
-    // `device_to_opendeck` is 0-based, so add 1
-    // I'll probably have to refactor all of this off-by-one stuff in this file, but that's a future me problem
+    // Map input to OpenDeck button index (0-based)
+    let pressed_index: usize = match input {
+        // LCD buttons (1-15 from device, map to 0-14)
+        1..=15 => (input - 1) as usize,
+        // Bottom buttons (non-LCD, map to 15-17)
+        BTN_LEFT => 15,
+        BTN_MIDDLE => 16,
+        BTN_RIGHT => 17,
+        _ => return Err(MirajazzError::BadData),
+    };
+
     button_states[pressed_index + 1] = state;
 
     Ok(DeviceInput::ButtonStateChange(read_button_states(
