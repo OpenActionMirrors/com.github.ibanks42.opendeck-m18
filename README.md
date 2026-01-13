@@ -21,6 +21,8 @@ The M18 has:
 - 15 LCD keys (5 columns x 3 rows)
 - 3 bottom buttons (non-LCD, mapped to keys 16-18 in OpenDeck)
 
+**Note:** OpenDeck displays a 4x5 grid (20 slots), but the M18 only has 18 physical buttons. The last 2 slots in the bottom row are unused and do not correspond to any button on the device.
+
 ## Platform support
 
 - Linux: Primary development platform
