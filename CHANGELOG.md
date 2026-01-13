@@ -2,12 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2025-01-13
+
+### Added
+
+- Support for Mirabox M18 device (6603:1009 and 6603:1012)
+- Distinct device identification for VSD Inside M18 vs Mirabox M18
+- Support for Mirabox M18 EN variant
+
+### Changed
+
+- Clarified that 5548:1000 is VSD Inside M18 (not Mirabox)
+- Updated UDEV rules to include both device VID/PIDs
+
+### Fixed
+
+- Corrected Mirabox M18 VID/PID values based on official SDK (was incorrectly using 0416:1000)
+
 ## [0.1.0] - 2025-01-12
 
 ### Initial Release
 
 - Forked from [opendeck-akp153](https://github.com/4ndv/opendeck-akp153) v0.9.4
-- Adapted for VSD Inside M18 / Mirabox M18 device (5548:1000)
+- Adapted for VSD Inside M18 device (5548:1000)
 - 15 LCD keys (5 columns x 3 rows) + 3 bottom buttons (non-LCD)
 - Protocol version 3 (1024-byte packets, supports press/release states)
 - 64x64 JPEG images with 180° rotation and both-axis mirroring

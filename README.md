@@ -13,7 +13,8 @@ Requires OpenDeck 2.5.0 or newer
 ## Supported devices
 
 - VSD Inside M18 (5548:1000)
-- Mirabox M18 (5548:1000)
+- Mirabox M18 (6603:1009)
+- Mirabox M18 EN (6603:1012)
 
 ## Device Layout
 
