@@ -4,6 +4,7 @@ use data_url::DataUrl;
 use image::load_from_memory_with_format;
 use mirajazz::{device::Device, error::MirajazzError, state::DeviceStateUpdate};
 use openaction::{OUTBOUND_EVENT_MANAGER, SetImageEvent};
+use serde::Serialize;
 use tokio::time::interval;
 use tokio_util::sync::CancellationToken;
 
@@ -11,10 +12,28 @@ use crate::{
     DEVICES, TOKENS,
     inputs::opendeck_to_device,
     mappings::{
-        COL_COUNT, CandidateDevice, ENCODER_COUNT, KEY_COUNT, Kind, ROW_COUNT,
+        COL_COUNT, CandidateDevice, ENCODER_COUNT, KEY_COUNT, Kind, ROW_COUNT, TOUCHPOINT_COUNT,
         get_image_format_for_key,
     },
 };
+
+#[derive(Serialize)]
+struct RegisterDeviceEvent {
+    event: &'static str,
+    payload: RegisterDevicePayload,
+}
+
+#[derive(Serialize)]
+struct RegisterDevicePayload {
+    id: String,
+    name: String,
+    rows: u8,
+    columns: u8,
+    encoders: u8,
+    touchpoints: u8,
+    #[serde(rename = "type")]
+    kind: u8,
+}
 
 /// Initializes a device and listens for events
 pub async fn device_task(candidate: CandidateDevice, token: CancellationToken) {
@@ -49,14 +68,18 @@ pub async fn device_task(candidate: CandidateDevice, token: CancellationToken) {
     log::info!("Registering device {}", candidate.id);
     if let Some(outbound) = OUTBOUND_EVENT_MANAGER.lock().await.as_mut() {
         outbound
-            .register_device(
-                candidate.id.clone(),
-                candidate.kind.human_name(),
-                ROW_COUNT as u8,
-                COL_COUNT as u8,
-                ENCODER_COUNT as u8,
-                0,
-            )
+            .send_event(RegisterDeviceEvent {
+                event: "registerDevice",
+                payload: RegisterDevicePayload {
+                    id: candidate.id.clone(),
+                    name: candidate.kind.human_name(),
+                    rows: ROW_COUNT as u8,
+                    columns: COL_COUNT as u8,
+                    encoders: ENCODER_COUNT as u8,
+                    touchpoints: TOUCHPOINT_COUNT as u8,
+                    kind: 0,
+                },
+            })
             .await
             .unwrap();
     }
@@ -213,6 +236,10 @@ pub async fn handle_set_image(device: &Device, evt: SetImageEvent) -> Result<(),
     match (evt.position, evt.image) {
         (Some(position), Some(image)) => {
             log::info!("Setting image for button {}", position);
+            if position >= (ROW_COUNT * COL_COUNT) as u8 {
+                log::info!("Ignoring image for non-LCD bottom button {}", position);
+                return Ok(());
+            }
 
             // OpenDeck sends image as a data url, so parse it using a library
             let url = DataUrl::process(image.as_str()).unwrap(); // Isn't expected to fail, so unwrap it is
@@ -239,6 +266,13 @@ pub async fn handle_set_image(device: &Device, evt: SetImageEvent) -> Result<(),
             device.flush().await?;
         }
         (Some(position), None) => {
+            if position >= (ROW_COUNT * COL_COUNT) as u8 {
+                log::info!(
+                    "Ignoring clear image for non-LCD bottom button {}",
+                    position
+                );
+                return Ok(());
+            }
             device
                 .clear_button_image(opendeck_to_device(position))
                 .await?;

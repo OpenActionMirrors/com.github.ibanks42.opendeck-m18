@@ -7,11 +7,15 @@ use mirajazz::{
 // Must be unique between all the plugins, 2 characters long and match `DeviceNamespace` field in `manifest.json`
 pub const DEVICE_NAMESPACE: &str = "18";
 
-// Device layout: 3 rows of 5 LCD keys + 1 row with 3 bottom buttons (+ 2 unused slots)
-// OpenDeck sees this as a 4x5 grid (20 slots, but only 18 are real buttons)
-pub const ROW_COUNT: usize = 4;
+// Device layout: 3 rows of 5 LCD keys + 3 bottom non-LCD buttons.
+// OpenDeck supports an extra "touchpoint" row in the UI, which is the closest
+// way to expose the bottom buttons without pretending there are 2 more buttons.
+pub const ROW_COUNT: usize = 3;
 pub const COL_COUNT: usize = 5;
-pub const KEY_COUNT: usize = ROW_COUNT * COL_COUNT;
+pub const TOUCHPOINT_COUNT: usize = 3;
+// Keep the hardware button state buffer at 20 positions because the original
+// protocol/library path expects the 4x5 M18 shape.
+pub const KEY_COUNT: usize = 20;
 pub const ENCODER_COUNT: usize = 0;
 
 #[derive(Debug, Clone)]
@@ -27,9 +31,11 @@ pub const MIRABOX_M18_PID: u16 = 0x1009;
 pub const MIRABOX_M18EN_PID: u16 = 0x1012;
 
 // Map all queries to usage page 65440 and usage id 1
-pub const VSDINSIDE_M18_QUERY: DeviceQuery = DeviceQuery::new(65440, 1, VSDINSIDE_VID, VSDINSIDE_M18_PID);
+pub const VSDINSIDE_M18_QUERY: DeviceQuery =
+    DeviceQuery::new(65440, 1, VSDINSIDE_VID, VSDINSIDE_M18_PID);
 pub const MIRABOX_M18_QUERY: DeviceQuery = DeviceQuery::new(65440, 1, MIRABOX_VID, MIRABOX_M18_PID);
-pub const MIRABOX_M18EN_QUERY: DeviceQuery = DeviceQuery::new(65440, 1, MIRABOX_VID, MIRABOX_M18EN_PID);
+pub const MIRABOX_M18EN_QUERY: DeviceQuery =
+    DeviceQuery::new(65440, 1, MIRABOX_VID, MIRABOX_M18EN_PID);
 
 pub const QUERIES: [DeviceQuery; 3] = [VSDINSIDE_M18_QUERY, MIRABOX_M18_QUERY, MIRABOX_M18EN_QUERY];
 
